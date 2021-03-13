@@ -9,9 +9,9 @@ import spice.basic.CSPICE;
 public class Main {
     public static void main(String[] args) throws Throwable {
         ParSPICE par = new ParSPICE(
-                "/home/joel/repos/parspice/build/libs/parspice-1.0-SNAPSHOT-worker.jar",
+                "/Users/joel/repos/parspice/build/libs/parspice-1.0-SNAPSHOT-worker.jar",
                 50050,
-                8,
+                3,
                 50000
         );
         par.start();

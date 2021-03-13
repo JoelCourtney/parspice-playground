@@ -10,5 +10,5 @@ repositories {
 }
 
 dependencies {
-    implementation files('/home/joel/repos/parspice/build/libs/parspice-1.0-SNAPSHOT-lib.jar')
+    implementation files('/Users/joel/repos/parspice/build/libs/parspice-1.0-SNAPSHOT-lib.jar')
 }
