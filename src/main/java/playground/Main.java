@@ -2,6 +2,7 @@ package playground;
 
 import parspice.ParSPICE;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -10,15 +11,18 @@ import spice.basic.CSPICE;
 
 public class Main {
     private static final int iterations = 10000000;
+    private static ParSPICE par;
 
     public static void main(String[] args) throws Exception {
+        par = new ParSPICE("build/libs/worker-1.0-SNAPSHOT.jar", 50050);
+
         long start = System.currentTimeMillis();
         List<double[]> r1 = noInput();
-        System.out.println("NoInput ParSPICE: " + (System.currentTimeMillis() - start));
+        System.out.println("Output only ParSPICE: " + (System.currentTimeMillis() - start));
 
         start = System.currentTimeMillis();
         List<double[]> r2 = withInput();
-        System.out.println("Input ParSPICE: " + (System.currentTimeMillis() - start));
+        System.out.println("Input + Output ParSPICE: " + (System.currentTimeMillis() - start));
 
         start = System.currentTimeMillis();
         System.loadLibrary("JNISpice");
@@ -45,21 +49,21 @@ public class Main {
         for (int i = 0; i < iterations; i++) {
             inputs.add(new double[]{1, 2, i});
         }
-        ParSPICE<double[], double[]> par2 = new ParSPICE<>(
-                "build/libs/worker-1.0-SNAPSHOT.jar",
+        return par.run(
                 "playground.MySecondWorker",
                 new DoubleArraySender(3),
-                new DoubleArraySender(3)
+                new DoubleArraySender(3),
+                inputs,
+                6
         );
-        return par2.run(inputs, 6);
     }
 
     public static List<double[]> noInput() throws Exception {
-        ParSPICE<Void, double[]> par = new ParSPICE<>(
-                "build/libs/worker-1.0-SNAPSHOT.jar",
+        return par.run(
                 "playground.MyWorker",
-                new DoubleArraySender(3)
+                new DoubleArraySender(3),
+                iterations,
+                6
         );
-        return par.run(iterations, 6);
     }
 }

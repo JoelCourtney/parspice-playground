@@ -1,11 +1,11 @@
 package playground;
 
 import parspice.sender.DoubleArraySender;
-import parspice.worker.InputWorker;
+import parspice.worker.InputOutputWorker;
 import spice.basic.CSPICE;
 import spice.basic.SpiceErrorException;
 
-public class MySecondWorker extends InputWorker<double[], double[]> {
+public class MySecondWorker extends InputOutputWorker<double[], double[]> {
     public static void main(String[] args) throws Exception {
         new MySecondWorker().run(
                 new DoubleArraySender(3),
