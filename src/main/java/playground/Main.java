@@ -36,9 +36,9 @@ public class Main {
         for (int i = 0; i < iterations; i++) {
             for (int j = 0; j < 3; j++) {
                 if (r1.get(i)[j] != r2.get(i)[j] || r1.get(i)[j] != r3.get(i)[j]) {
-                    System.out.println(Arrays.toString(r1.get(i)));
-                    System.out.println(Arrays.toString(r2.get(i)));
-                    System.out.println(Arrays.toString(r3.get(i)));
+                    System.out.println("r1: " + Arrays.toString(r1.get(i)));
+                    System.out.println("r2: " + Arrays.toString(r2.get(i)));
+                    System.out.println("r3: " + Arrays.toString(r3.get(i)));
                 }
             }
         }
@@ -50,9 +50,7 @@ public class Main {
             inputs.add(new double[]{1, 2, i});
         }
         return par.run(
-                "playground.MySecondWorker",
-                new DoubleArraySender(3),
-                new DoubleArraySender(3),
+                new MySecondWorker(),
                 inputs,
                 6
         );
@@ -60,8 +58,7 @@ public class Main {
 
     public static List<double[]> noInput() throws Exception {
         return par.run(
-                "playground.MyWorker",
-                new DoubleArraySender(3),
+                new MyWorker(),
                 iterations,
                 6
         );
