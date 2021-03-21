@@ -1,12 +1,16 @@
 package playground;
 
+import parspice.sender.DoubleArraySender;
 import spice.basic.CSPICE;
 import spice.basic.SpiceErrorException;
 import parspice.Worker;
 
 public class MyWorker extends Worker<double[]> {
     public static void main(String[] args) throws Exception {
-        new MyWorker().run(new MyReturner(), args);
+        new MyWorker().run(
+                new DoubleArraySender(3),
+                args
+        );
     }
 
     @Override
