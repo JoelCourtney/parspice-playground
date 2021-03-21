@@ -1,14 +1,34 @@
+buildscript {
+    repositories {
+        mavenLocal() // plugin published to maven local
+    }
+    dependencies {
+        classpath 'org.parspice:parspice.plugin:1.0-SNAPSHOT' // plugin’s artifact
+    }
+}
+
 plugins {
     id 'java'
 }
+
+apply plugin: 'parspice.plugin'
 
 group 'org.example'
 version '1.0-SNAPSHOT'
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
 dependencies {
-    implementation files('/Users/joel/repos/parspice/build/libs/parspice-1.0-SNAPSHOT-lib.jar')
+    implementation 'org.parspice:parspice.implementation:1.0-SNAPSHOT'
+    compileClasspath 'org.parspice:parspice.implementation:1.0-SNAPSHOT'
+    implementation files('/usr/local/JNISpice/src/JNISpice')
+}
+
+workers {
+    vhatWorker {
+        mainClass = 'playground.MyWorker'
+    }
 }
