@@ -4,12 +4,14 @@ import parspice.sender.DoubleArraySender;
 import parspice.sender.Sender;
 import spice.basic.CSPICE;
 import spice.basic.SpiceErrorException;
-import parspice.worker.OutputWorker;
+import parspice.worker.OWorker;
 
-public class MyWorker extends OutputWorker<double[]> {
+public class MyOWorker implements OWorker<double[]> {
+
+    private static final double[][] mat = new double[][]{{1, 2, 3}, {-1, 2, 5}, {-4, 0, 3}};
 
     public static void main(String[] args) throws Exception {
-        new MyWorker().run(args);
+        OWorker.run(new MyOWorker(), args);
     }
 
     @Override
@@ -24,6 +26,6 @@ public class MyWorker extends OutputWorker<double[]> {
 
     @Override
     public double[] task(int i) throws SpiceErrorException {
-        return CSPICE.vhat(new double[]{1, 2, i});
+        return CSPICE.mxv(mat, CSPICE.vhat(new double[]{1, 2, i}));
     }
 }

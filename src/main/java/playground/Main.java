@@ -11,6 +11,8 @@ public class Main {
     private static final int iterations = 10000000;
     private static ParSPICE par;
 
+    private static final double[][] mat = new double[][]{{1, 2, 3}, {-1, 2, 5}, {-4, 0, 3}};
+
     /*
     Runs the same task three times:
 
@@ -60,7 +62,7 @@ public class Main {
             inputs.add(new double[]{1, 2, i});
         }
         return par.run(
-                new MySecondWorker(),
+                new MyIOWorker(),
                 inputs,
                 6
         );
@@ -71,7 +73,7 @@ public class Main {
      */
     public static List<double[]> noInput() throws Exception {
         return par.run(
-                new MyWorker(),
+                new MyOWorker(),
                 iterations,
                 6
         );
@@ -84,7 +86,7 @@ public class Main {
         System.loadLibrary("JNISpice");
         List<double[]> results = new ArrayList<>(iterations);
         for (int i = 0; i < iterations; i++) {
-            results.add(CSPICE.vhat(new double[]{1, 2, i}));
+            results.add(CSPICE.mxv(mat, CSPICE.vhat(new double[]{1, 2, i})));
         }
         return results;
     }
