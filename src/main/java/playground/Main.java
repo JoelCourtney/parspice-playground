@@ -29,17 +29,17 @@ public class Main {
 //        System.out.println("\nRunning with " + iterations + " iterations\n");
         par = new ParSPICE("build/libs/worker-1.0-SNAPSHOT.jar", 50050);
 
-        long start = System.currentTimeMillis();
-        List<double[]> r1 = noInput();
-        System.out.println("Output only ParSPICE: " + (System.currentTimeMillis() - start));
-
-        start = System.currentTimeMillis();
-        List<double[]> r2 = withInput();
-        System.out.println("Input + Output ParSPICE: " + (System.currentTimeMillis() - start));
-
-        start = System.currentTimeMillis();
-        List<double[]> r3 = direct();
-        System.out.println("Direct JNISpice: " + (System.currentTimeMillis() - start));
+//        long start = System.currentTimeMillis();
+//        List<double[]> r1 = noInput();
+//        System.out.println("Output only ParSPICE: " + (System.currentTimeMillis() - start));
+//
+//        start = System.currentTimeMillis();
+//        List<double[]> r2 = withInput();
+//        System.out.println("Input + Output ParSPICE: " + (System.currentTimeMillis() - start));
+//
+//        start = System.currentTimeMillis();
+//        List<double[]> r3 = direct();
+//        System.out.println("Direct JNISpice: " + (System.currentTimeMillis() - start));
 
 
 //        long start = System.currentTimeMillis();
@@ -50,21 +50,30 @@ public class Main {
 //        List<double[]> r2 = directSpkezr();
 //        System.out.println("Spkezr direct: " + (System.currentTimeMillis() - start));
 
-        int diff = 0;
+        long start = System.currentTimeMillis();
+        List<double[]> r1 = par.run(new SincptWorker(), iterations, 6);
+        System.out.println("Sincpt ParSPICE: " + (System.currentTimeMillis() - start));
+
+        start = System.currentTimeMillis();
+        List<double[]> r2 = directSincpt();
+        System.out.println("Sincpt direct: " + (System.currentTimeMillis() - start));
+
+        List<Integer> badIndices = new ArrayList<Integer>();
         for (int i = 0; i < iterations; i++) {
             boolean fail = false;
             for (int j = 0; j < 3; j++) {
                 if (r1.get(i)[j] != r2.get(i)[j]) {
                     fail = true;
+                    break;
                 }
             }
             if (fail) {
-                diff++;
+                badIndices.add(i);
                 System.out.println("\nr1: " + Arrays.toString(r1.get(i)));
                 System.out.println("r2: " + Arrays.toString(r2.get(i)));
             }
         }
-        System.out.println(diff);
+        System.out.println(badIndices);
     }
 
 
@@ -123,6 +132,38 @@ public class Main {
             double[] ltime = new double[1];
             CSPICE.spkezr("CASSINI", et, "ECLIPJ2000", "NONE", "SUN", state, ltime);
             results.add(state);
+        }
+        return results;
+    }
+
+    /*
+    Run the task directly through JNISpice.
+     */
+    public static List<double[]> directSincpt() throws Exception {
+        System.loadLibrary("JNISpice");
+        CSPICE.furnsh("fovint.tm");
+
+        List<double[]> results = new ArrayList<>(iterations);
+
+        for (int i = 0; i < iterations; i++) {
+            double et = CSPICE.str2et("2004 jun 11 19:32:00")- i/200.;
+            String[] shape = new String[1];
+            String[] insfrm = new String[1];
+            double[] bsight = new double[3];
+            int[] n = new int[1];
+            double[] bounds = new double[12];
+            double[] point = new double[3];
+            double[] trgepc = new double[1];
+            double[] srfvec = new double[3];
+            boolean[] found = new boolean[1];
+            int nacid = CSPICE.bodn2c("CASSINI_ISS_NAC");
+            CSPICE.getfov(nacid, shape, insfrm, bsight, n, bounds);
+            CSPICE.sincpt(
+                    "Ellipsoid", "PHOEBE", et, "IAU_PHOEBE",
+                    "LT+S", "CASSINI", insfrm[0], bounds,
+                    point, trgepc, srfvec, found
+            );
+            results.add(point);
         }
         return results;
     }
