@@ -23,13 +23,9 @@ public class SpkezrWorker implements OWorker<double[]> {
     }
 
     @Override
-    public void setup() {
+    public void setup() throws SpiceErrorException {
         System.loadLibrary("JNISpice");
-        try {
-            CSPICE.furnsh("scvel.tm");
-        } catch (SpiceErrorException e) {
-            e.printStackTrace();
-        }
+        CSPICE.furnsh("scvel.tm");
     }
 
     @Override

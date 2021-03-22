@@ -16,6 +16,9 @@ dependencies {
 }
 
 jar {
+    manifest {
+        attributes 'Main-Class': 'playground.Main'
+    }
     from {
         configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }

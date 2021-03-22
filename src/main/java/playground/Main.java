@@ -29,31 +29,31 @@ public class Main {
 //        System.out.println("\nRunning with " + iterations + " iterations\n");
         par = new ParSPICE("build/libs/worker-1.0-SNAPSHOT.jar", 50050);
 
-//        long start = System.currentTimeMillis();
-//        List<double[]> r1 = noInput();
-//        System.out.println("Output only ParSPICE: " + (System.currentTimeMillis() - start));
-//
-//        start = System.currentTimeMillis();
-//        List<double[]> r2 = withInput();
-//        System.out.println("Input + Output ParSPICE: " + (System.currentTimeMillis() - start));
-//
-//        start = System.currentTimeMillis();
-//        List<double[]> r3 = direct();
-//        System.out.println("Direct JNISpice: " + (System.currentTimeMillis() - start));
-
-
         long start = System.currentTimeMillis();
-        List<double[]> r1 = par.run(new SpkezrWorker(), iterations, 6);
-        System.out.println("Spkezr ParSPICE: " + (System.currentTimeMillis() - start));
+        List<double[]> r1 = noInput();
+        System.out.println("Output only ParSPICE: " + (System.currentTimeMillis() - start));
 
         start = System.currentTimeMillis();
-        List<double[]> r2 = directSpkezr();
-        System.out.println("Spkezr direct: " + (System.currentTimeMillis() - start));
+        List<double[]> r2 = withInput();
+        System.out.println("Input + Output ParSPICE: " + (System.currentTimeMillis() - start));
+
+        start = System.currentTimeMillis();
+        List<double[]> r3 = direct();
+        System.out.println("Direct JNISpice: " + (System.currentTimeMillis() - start));
+
+
+//        long start = System.currentTimeMillis();
+//        List<double[]> r1 = par.run(new SpkezrWorker(), iterations, 6);
+//        System.out.println("Spkezr ParSPICE: " + (System.currentTimeMillis() - start));
+//
+//        start = System.currentTimeMillis();
+//        List<double[]> r2 = directSpkezr();
+//        System.out.println("Spkezr direct: " + (System.currentTimeMillis() - start));
 
         int diff = 0;
         for (int i = 0; i < iterations; i++) {
             boolean fail = false;
-            for (int j = 0; j < 6; j++) {
+            for (int j = 0; j < 3; j++) {
                 if (r1.get(i)[j] != r2.get(i)[j]) {
                     fail = true;
                 }
@@ -69,7 +69,7 @@ public class Main {
 
 
     /*
-    Run the task with no inputs phase.
+    Run the task with inputs and outputs phase.
      */
     public static List<double[]> withInput() throws Exception {
         List<double[]> inputs = new ArrayList<>(iterations);
@@ -84,7 +84,7 @@ public class Main {
     }
 
     /*
-    Run the task with inputs and outputs phase.
+    Run the task with no inputs phase.
      */
     public static List<double[]> noInput() throws Exception {
         return par.run(
