@@ -8,7 +8,7 @@ import java.util.List;
 import spice.basic.CSPICE;
 
 public class Main {
-    private static final int iterations = 10000000;
+    private static final int iterations = 100000;
     private static ParSPICE par;
 
     private static final double[][] mat = new double[][]{{1, 2, 3}, {-1, 2, 5}, {-4, 0, 3}};
@@ -26,32 +26,47 @@ public class Main {
     The timing results are printed to stdout.
      */
     public static void main(String[] args) throws Exception {
-        System.out.println("\nRunning with " + iterations + " iterations\n");
+//        System.out.println("\nRunning with " + iterations + " iterations\n");
         par = new ParSPICE("build/libs/worker-1.0-SNAPSHOT.jar", 50050);
 
+//        long start = System.currentTimeMillis();
+//        List<double[]> r1 = noInput();
+//        System.out.println("Output only ParSPICE: " + (System.currentTimeMillis() - start));
+//
+//        start = System.currentTimeMillis();
+//        List<double[]> r2 = withInput();
+//        System.out.println("Input + Output ParSPICE: " + (System.currentTimeMillis() - start));
+//
+//        start = System.currentTimeMillis();
+//        List<double[]> r3 = direct();
+//        System.out.println("Direct JNISpice: " + (System.currentTimeMillis() - start));
+
+
         long start = System.currentTimeMillis();
-        List<double[]> r1 = noInput();
-        System.out.println("Output only ParSPICE: " + (System.currentTimeMillis() - start));
+        List<double[]> r1 = par.run(new SpkezrWorker(), iterations, 6);
+        System.out.println("Spkezr ParSPICE: " + (System.currentTimeMillis() - start));
 
         start = System.currentTimeMillis();
-        List<double[]> r2 = withInput();
-        System.out.println("Input + Output ParSPICE: " + (System.currentTimeMillis() - start));
+        List<double[]> r2 = directSpkezr();
+        System.out.println("Spkezr direct: " + (System.currentTimeMillis() - start));
 
-        start = System.currentTimeMillis();
-        List<double[]> r3 = direct();
-        System.out.println("Direct JNISpice: " + (System.currentTimeMillis() - start));
-
-
+        int diff = 0;
         for (int i = 0; i < iterations; i++) {
-            for (int j = 0; j < 3; j++) {
-                if (r1.get(i)[j] != r2.get(i)[j] || r1.get(i)[j] != r3.get(i)[j]) {
-                    System.out.println("\nr1: " + Arrays.toString(r1.get(i)));
-                    System.out.println("r2: " + Arrays.toString(r2.get(i)));
-                    System.out.println("r3: " + Arrays.toString(r3.get(i)));
+            boolean fail = false;
+            for (int j = 0; j < 6; j++) {
+                if (r1.get(i)[j] != r2.get(i)[j]) {
+                    fail = true;
                 }
             }
+            if (fail) {
+                diff++;
+                System.out.println("\nr1: " + Arrays.toString(r1.get(i)));
+                System.out.println("r2: " + Arrays.toString(r2.get(i)));
+            }
         }
+        System.out.println(diff);
     }
+
 
     /*
     Run the task with no inputs phase.
@@ -87,6 +102,27 @@ public class Main {
         List<double[]> results = new ArrayList<>(iterations);
         for (int i = 0; i < iterations; i++) {
             results.add(CSPICE.mxv(mat, CSPICE.vhat(new double[]{1, 2, i})));
+        }
+        return results;
+    }
+
+    /*
+    Run the task directly through JNISpice.
+     */
+    public static List<double[]> directSpkezr() throws Exception {
+        System.loadLibrary("JNISpice");
+        CSPICE.furnsh("scvel.tm");
+        List<double[]> results = new ArrayList<>(iterations);
+
+        String utc = "2004-06-11T19:32:00";
+
+        for (int i = 0; i < iterations; i++) {
+            double et = CSPICE.str2et(utc) + i/2.;
+
+            double[] state = new double[6];
+            double[] ltime = new double[1];
+            CSPICE.spkezr("CASSINI", et, "ECLIPJ2000", "NONE", "SUN", state, ltime);
+            results.add(state);
         }
         return results;
     }
