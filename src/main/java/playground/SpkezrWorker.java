@@ -1,25 +1,19 @@
 package playground;
 
 import parspice.sender.DoubleArraySender;
-import parspice.sender.Sender;
 import parspice.worker.OWorker;
 import spice.basic.CSPICE;
 import spice.basic.SpiceErrorException;
 
-public class SpkezrWorker implements OWorker<double[]> {
+public class SpkezrWorker extends OWorker<double[]> {
 
     double[] state = new double[6];
     double[] ltime = new double[1];
 
     String utc = "2004-06-11T19:32:00";
 
-    public static void main(String[] args) throws Exception {
-        OWorker.run(new SpkezrWorker(), args);
-    }
-
-    @Override
-    public Sender<double[]> getOutputSender() {
-        return new DoubleArraySender(6);
+    public SpkezrWorker() {
+        super(new DoubleArraySender(6));
     }
 
     @Override

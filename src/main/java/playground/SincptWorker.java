@@ -9,7 +9,7 @@ import spice.basic.SpiceErrorException;
 
 import java.io.IOException;
 
-public class SincptWorker implements OWorker<double[]> {
+public class SincptWorker extends OWorker<double[]> {
 
     String[] shape = new String[1];
     String[] insfrm = new String[1];
@@ -23,12 +23,8 @@ public class SincptWorker implements OWorker<double[]> {
     int nacid;
     double et;
 
-    public static void main(String[] args) throws IOException {
-        OWorker.run(new SincptWorker(), args);
-    }
-    @Override
-    public Sender<double[]> getOutputSender() {
-        return new DoubleArraySender(3);
+    public SincptWorker() {
+        super(new DoubleArraySender(3));
     }
 
     @Override
