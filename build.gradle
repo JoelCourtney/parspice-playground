@@ -12,7 +12,7 @@ repositories {
 
 dependencies {
     implementation 'org.parspice:parspice.implementation:1.0-SNAPSHOT'
-    implementation files('/usr/local/JNISpice/src/JNISpice')
+    implementation files("${System.getenv("JNISPICE_ROOT")}/src/JNISpice")
 }
 
 jar {
@@ -22,5 +22,5 @@ jar {
     from {
         configurations.compileClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
-    archiveBaseName = "worker"
+    archiveBaseName.set("worker")
 }
